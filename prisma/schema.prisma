@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ConcursoTipo {
+  FEDERAL
+  ESTADUAL
+  MUNICIPAL
+  DISTRITAL
+}
+
+enum ConcursoStatus {
+  SOLICITADO
+  EM_ESTUDO
+  AUTORIZADO
+  COMISSAO_FORMADA
+  BANCA_DEFINIDA
+  PREVISTO
+  EDITAL_PUBLICADO
+  INSCRICOES_ABERTAS
+  INSCRICOES_ENCERRADAS
+  EM_ANDAMENTO
+  PROVA_PROXIMA
+  PROVA_REALIZADA
+  RESULTADO_PUBLICADO
+  FINALIZADO
+  SUSPENSO
+  CANCELADO
+}
+
+enum ConcursoModalidade {
+  CONCURSO_PUBLICO
+  PROCESSO_SELETIVO_TEMPORARIO
+}
+
+enum Confiabilidade {
+  FONTE_OFICIAL_VERIFICADA
+  INFORMACAO_EM_ANALISE
+  CONCURSO_PREVISTO
+  DADO_DE_DEMONSTRACAO
+  AGUARDANDO_CONFIRMACAO
+}
+
+enum FonteTipo {
+  ORGAO_OFICIAL
+  BANCA_OFICIAL
+  DIARIO_OFICIAL
+  EDITAL
+  COMUNICADO_OFICIAL
+  DADO_DEMONSTRACAO
+  AGUARDANDO_VALIDACAO
+}
+
+enum Importancia {
+  BAIXA
+  MEDIA
+  ALTA
+}
+
+enum Dificuldade {
+  BAIXA
+  MEDIA
+  ALTA
+}
+
+enum EventoTipo {
+  INICIO_INSCRICOES
+  FIM_INSCRICOES
+  PAGAMENTO
+  LOCAIS_PROVA
+  PROVA
+  GABARITO
+  RESULTADO_PRELIMINAR
+  RESULTADO_FINAL
+}
+
+model Concurso {
+  id                  String           @id @default(cuid())
+  slug                String           @unique
+  titulo              String
+  ano                 Int
+  tipo                ConcursoTipo
+  modalidade          ConcursoModalidade @default(CONCURSO_PUBLICO)
+  abrangencia         String
+  status              ConcursoStatus
+  etapaPrevisao       String?
+  confiabilidade      Confiabilidade     @default(AGUARDANDO_CONFIRMACAO)
+  fonteVerificada     Boolean            @default(false)
+  origemDados         String             @default("importacao_manual")
+  ultimaVerificacaoEm DateTime?
+  regiao              String?
+  estado              String?
+  municipio           String?
+  areaAtuacao         String
+  vagas               Int?
+  cadastroReserva     Boolean          @default(false)
+  salarioMinimo       Decimal?
+  salarioMaximo       Decimal?
+  jornada             String?
+  inicioInscricoes    DateTime?
+  fimInscricoes       DateTime?
+  dataLimitePagamento DateTime?
+  dataProva           DateTime?
+  taxaInscricao       Decimal?
+  resumo              String?
+  requisitos          String[]         @default([])
+  etapas              String[]         @default([])
+  destaque            Boolean          @default(false)
+  atualizadoEm        DateTime         @updatedAt
+  criadoEm            DateTime         @default(now())
+
+  orgaoId             String
+  bancaId             String?
+  orgao               Orgao            @relation(fields: [orgaoId], references: [id], onDelete: Restrict)
+  banca               Banca?           @relation(fields: [bancaId], references: [id], onDelete: SetNull)
+  cargos              Cargo[]
+  editais             Edital[]
+  linksOficiais       LinkOficial[]
+  fontes              FonteConcurso[]
+  materias            Materia[]
+  atualizacoes        Atualizacao[]
+  datasImportantes    DataImportante[]
+  provasAnteriores    ProvaAnterior[]
+
+  @@index([status])
+  @@index([ano])
+  @@index([confiabilidade])
+  @@index([regiao, estado, municipio])
+  @@index([tipo])
+  @@index([orgaoId])
+  @@index([bancaId])
+}
+
+model FonteConcurso {
+  id            String      @id @default(cuid())
+  concursoId    String
+  nome          String
+  url           String?
+  tipo          FonteTipo
+  consultadoEm  DateTime
+  observacao    String?
+  concurso      Concurso    @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+
+  @@index([concursoId])
+  @@index([tipo])
+}
+
+model Orgao {
+  id             String      @id @default(cuid())
+  slug           String      @unique
+  nome           String
+  descricao      String?
+  areaAtuacao    String
+  linksOficiais  String[]    @default([])
+  concursos      Concurso[]
+  criadoEm       DateTime    @default(now())
+  atualizadoEm   DateTime    @updatedAt
+}
+
+model Banca {
+  id                String      @id @default(cuid())
+  slug              String      @unique
+  nome              String
+  descricao         String?
+  estiloQuestoes    String?
+  nivelDificuldade  String?
+  caracteristicas   String[]    @default([])
+  dicasPreparacao   String[]    @default([])
+  concursos         Concurso[]
+  provasAnteriores  ProvaAnterior[]
+  criadoEm          DateTime    @default(now())
+  atualizadoEm      DateTime    @updatedAt
+}
+
+model Cargo {
+  id             String    @id @default(cuid())
+  concursoId     String
+  nome           String
+  escolaridade   String
+  vagas          Int?
+  salarioMinimo  Decimal?
+  salarioMaximo  Decimal?
+  jornada        String?
+  requisitos     String[]  @default([])
+  concurso       Concurso  @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+
+  @@index([concursoId])
+  @@index([escolaridade])
+}
+
+model Localidade {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  nome        String
+  tipo        String
+  regiao      String?
+  estado      String?
+  municipio   String?
+  criadoEm    DateTime @default(now())
+}
+
+model Edital {
+  id           String    @id @default(cuid())
+  concursoId   String
+  titulo       String
+  url          String?
+  publicadoEm  DateTime?
+  resumo       String?
+  concurso     Concurso  @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+
+  @@index([concursoId])
+}
+
+model LinkOficial {
+  id          String    @id @default(cuid())
+  concursoId  String
+  titulo      String
+  tipo        String
+  url         String
+  concurso    Concurso  @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+
+  @@index([concursoId])
+}
+
+model Materia {
+  id                 String       @id @default(cuid())
+  concursoId         String
+  slug               String
+  nome               String
+  categoria          String
+  importancia        Importancia
+  dificuldade        Dificuldade
+  questoesEstimadas  Int?
+  ordemRecomendada   Int
+  estrategia         String?
+  observacaoAnalitica String?
+  concurso           Concurso     @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+  assuntos           Assunto[]
+
+  @@unique([concursoId, slug])
+  @@index([categoria])
+}
+
+model Assunto {
+  id          String    @id @default(cuid())
+  materiaId   String
+  titulo      String
+  subtitulos  String[]  @default([])
+  recorrente  Boolean   @default(false)
+  materia     Materia   @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+
+  @@index([materiaId])
+}
+
+model Atualizacao {
+  id            String    @id @default(cuid())
+  concursoId    String
+  tipo          String
+  data          DateTime
+  resumo        String
+  fonteOficial  String
+  url           String?
+  confiabilidade Confiabilidade @default(AGUARDANDO_CONFIRMACAO)
+  concurso      Concurso  @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+
+  @@index([data])
+  @@index([concursoId])
+}
+
+model DataImportante {
+  id          String      @id @default(cuid())
+  concursoId  String
+  titulo      String
+  tipo        EventoTipo
+  data        DateTime
+  concurso    Concurso    @relation(fields: [concursoId], references: [id], onDelete: Cascade)
+
+  @@index([data])
+  @@index([concursoId])
+}
+
+model ProvaAnterior {
+  id          String    @id @default(cuid())
+  concursoId  String?
+  bancaId     String?
+  titulo      String
+  ano         Int?
+  url         String?
+  concurso    Concurso? @relation(fields: [concursoId], references: [id], onDelete: SetNull)
+  banca       Banca?    @relation(fields: [bancaId], references: [id], onDelete: SetNull)
+
+  @@index([concursoId])
+  @@index([bancaId])
+}
