@@ -2,7 +2,7 @@
   "name": "organiza-concursos",
   "version": "1.0.0",
   "private": true,
-  "description": "Plataforma publica para consulta, acompanhamento e preparacao para concursos publicos.",
+  "description": "Plataforma pública para consulta, acompanhamento e preparação para concursos públicos.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",

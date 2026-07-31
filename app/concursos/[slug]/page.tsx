@@ -8,7 +8,7 @@ import { ConcursoCard } from "@/components/concurso-card";
 import { StatusBadge } from "@/components/status-badge";
 import { TrustBadge } from "@/components/trust-badge";
 import { ConcursosExplorer } from "@/features/public/concursos-explorer";
-import { anosDisponiveis, concursos, etapaPrevisaoMeta, formatCurrency, formatDate, getConcursoBySlug, regioes, salaryRange, slugify } from "@/lib/public-data";
+import { anosDisponiveis, concursos, etapaPrevisaoMeta, formatCurrency, formatDate, getConcursoBySlug, getFonteConcursoTipoLabel, regioes, salaryRange, slugify } from "@/lib/public-data";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -168,7 +168,7 @@ export default async function ConcursoDetalhePage({ params, searchParams }: { pa
               {concurso.fontes.map((fonte) => (
                 <div key={`${fonte.nome}-${fonte.tipo}`} className="rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-950">
                   <p className="font-bold">{fonte.nome}</p>
-                  <p className="text-slate-600 dark:text-slate-300">Tipo: {fonte.tipo.replaceAll("_", " ")}</p>
+                  <p className="text-slate-600 dark:text-slate-300">Tipo: {getFonteConcursoTipoLabel(fonte.tipo)}</p>
                   <p className="text-slate-600 dark:text-slate-300">Consultado em: {formatDate(fonte.consultadoEm)}</p>
                   {fonte.observacao ? <p className="mt-1 text-xs text-slate-500">{fonte.observacao}</p> : null}
                   {fonte.url ? <a href={fonte.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-sm font-bold text-emerald-700">Abrir fonte <ExternalLink className="ml-1 h-4 w-4" /></a> : null}

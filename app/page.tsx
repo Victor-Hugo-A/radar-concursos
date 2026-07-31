@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, CheckCircle2, MapPin, School, Search } from "lucide-react";
 import { ConcursoCard } from "@/components/concurso-card";
-import { atualizacoes, concursos, concursosPendentesValidacao, escolaridades, estados, estudoConteudos, eventosCalendario, formatDate, getCurrentYear, regioes, slugify } from "@/lib/public-data";
+import { atualizacoes, concursos, concursosPendentesValidacao, escolaridades, estados, estudoConteudos, eventosCalendario, fontesOficiaisMonitoradas, formatDate, getCurrentYear, getFonteMonitoradaTipoLabel, regioes, slugify } from "@/lib/public-data";
 
 export default function HomePage() {
   const abertas = concursos.filter((item) => item.status === "inscricoes_abertas");
@@ -82,6 +82,28 @@ export default function HomePage() {
       <Section title="Concursos em destaque" href="/concursos">
         {destaque.map((concurso) => <ConcursoCard key={concurso.id} concurso={concurso} />)}
       </Section>
+
+      <section className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Radar de fontes oficiais</h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-emerald-950 dark:text-emerald-100">
+                Acompanhe portais institucionais usados para validar editais, autorizações, inscrições e comunicados antes de publicar um concurso como fonte oficial.
+              </p>
+            </div>
+            <Link href="/fontes-oficiais" className="btn-primary">Ver fontes</Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {fontesOficiaisMonitoradas.slice(0, 3).map((fonte) => (
+              <a key={fonte.id} href={fonte.url} target="_blank" rel="noreferrer" className="rounded-lg border border-emerald-200 bg-white p-4 text-sm shadow-sm hover:border-emerald-400 dark:border-emerald-900 dark:bg-slate-950">
+                <p className="font-bold text-slate-950 dark:text-white">{fonte.nome}</p>
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{fonte.cobertura} - {getFonteMonitoradaTipoLabel(fonte.tipo)}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-3 lg:px-6">
         <MiniList title="Prazos próximos" items={prazoProximo.map((item) => ({ href: `/concursos/${item.slug}`, label: item.titulo, meta: `Inscrições até ${formatDate(item.fimInscricoes)}` }))} />

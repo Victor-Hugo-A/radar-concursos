@@ -20,7 +20,7 @@ const navItems = [
 const secondaryItems = [
   { href: "/orgaos", label: "Órgãos" },
   { href: "/bancas", label: "Bancas" },
-  { href: "/fontes-oficiais", label: "Fontes oficiais" },
+  { href: "/fontes-oficiais", label: "Radar oficial" },
   { href: "/provas-anteriores", label: "Provas anteriores" },
   { href: "/noticias", label: "Notícias" },
   { href: "/sobre", label: "Sobre" },

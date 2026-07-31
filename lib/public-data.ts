@@ -55,6 +55,19 @@ export type FonteConcurso = {
   observacao?: string;
 };
 
+export type FonteOficialMonitorada = {
+  id: string;
+  nome: string;
+  url: string;
+  tipo: "portal_governo" | "diario_oficial" | "banca" | "orgao" | "api_publica";
+  escopo: string;
+  cobertura: string;
+  ultimaConsultaEm: string;
+  confiabilidade: Confiabilidade;
+  observacao: string;
+  termosSugeridos: string[];
+};
+
 export type HistoricoConcurso = {
   data: string;
   etapa: string;
@@ -209,7 +222,34 @@ export const etapaPrevisaoMeta: Record<EtapaPrevisao, string> = {
   sem_confirmacao_oficial: "Sem confirmação oficial"
 };
 
+const fonteConcursoTipoLabel: Record<FonteConcurso["tipo"], string> = {
+  orgao_oficial: "Órgão oficial",
+  banca_oficial: "Banca oficial",
+  diario_oficial: "Diário Oficial",
+  edital: "Edital",
+  comunicado_oficial: "Comunicado oficial",
+  dado_demonstracao: "Dado de demonstração",
+  aguardando_validacao: "Aguardando validação"
+};
+
+const fonteMonitoradaTipoLabel: Record<FonteOficialMonitorada["tipo"], string> = {
+  portal_governo: "Portal de governo",
+  diario_oficial: "Diário Oficial",
+  banca: "Banca organizadora",
+  orgao: "Órgão público",
+  api_publica: "API pública"
+};
+
+export function getFonteConcursoTipoLabel(tipo: FonteConcurso["tipo"]) {
+  return fonteConcursoTipoLabel[tipo];
+}
+
+export function getFonteMonitoradaTipoLabel(tipo: FonteOficialMonitorada["tipo"]) {
+  return fonteMonitoradaTipoLabel[tipo];
+}
+
 const demoConsultadoEm = "2026-07-31";
+const oficialConsultadoEm = "2026-07-31";
 
 const fonteDemonstracao: FonteConcurso[] = [
   {
@@ -217,6 +257,33 @@ const fonteDemonstracao: FonteConcurso[] = [
     tipo: "dado_demonstracao",
     consultadoEm: demoConsultadoEm,
     observacao: "Não é fonte oficial. Registro usado apenas para validar layout, filtros e navegação."
+  }
+];
+
+const fonteGovBrCnu: FonteConcurso[] = [
+  {
+    nome: "Página oficial do CPNU 2 no Gov.br",
+    url: "https://www.gov.br/gestao/pt-br/concursonacional",
+    tipo: "orgao_oficial",
+    consultadoEm: oficialConsultadoEm,
+    observacao: "Fonte institucional do Ministério da Gestão para informações oficiais do Concurso Público Nacional Unificado 2."
+  },
+  {
+    nome: "Editais do CPNU 2 no Gov.br",
+    url: "https://www.gov.br/gestao/pt-br/concursonacional/editais",
+    tipo: "edital",
+    consultadoEm: oficialConsultadoEm,
+    observacao: "Página oficial de editais. Use esta fonte para confirmar cargos, blocos, requisitos e cronograma."
+  }
+];
+
+const fonteAutorizacaoReceitaBacen: FonteConcurso[] = [
+  {
+    nome: "Comunicado oficial do Ministério da Gestão",
+    url: "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central",
+    tipo: "comunicado_oficial",
+    consultadoEm: oficialConsultadoEm,
+    observacao: "Confirma autorização de concursos para Receita Federal e Banco Central. Não substitui edital de abertura."
   }
 ];
 
@@ -235,6 +302,19 @@ function historicoDemo(slugLabel: string, status: ConcursoStatus): HistoricoConc
       descricao: "Última revisão manual do dado demonstrativo. Não houve validação em fonte oficial.",
       fonte: "Base estática de demonstração do projeto",
       confiabilidade: "dado_de_demonstracao"
+    }
+  ];
+}
+
+function historicoOficial(etapa: string, descricao: string, fonte: string, url: string): HistoricoConcurso[] {
+  return [
+    {
+      data: oficialConsultadoEm,
+      etapa,
+      descricao,
+      fonte,
+      url,
+      confiabilidade: "fonte_oficial_verificada"
     }
   ];
 }
@@ -312,6 +392,115 @@ const baseDemo = {
 };
 
 export const concursos: Concurso[] = [
+  {
+    id: "oficial-001",
+    slug: "concurso-publico-nacional-unificado-2-2026",
+    titulo: "Concurso Público Nacional Unificado 2",
+    orgao: "Ministério da Gestão e da Inovação em Serviços Públicos",
+    orgaoSlug: "ministerio-da-gestao-e-da-inovacao-em-servicos-publicos",
+    ano: 2026,
+    tipo: "federal",
+    modalidade: "concurso_publico",
+    regiao: "Nacional",
+    abrangencia: "Nacional",
+    status: "edital_publicado",
+    cargos: ["Cargos e blocos temáticos informados nos editais oficiais"],
+    escolaridades: ["Médio", "Superior"],
+    areaAtuacao: "Administração pública federal",
+    palavrasChave: ["cpnu", "concurso nacional unificado", "federal", "mgi", "gov.br"],
+    siteOficialUrl: "https://www.gov.br/gestao/pt-br/concursonacional",
+    editalUrl: "https://www.gov.br/gestao/pt-br/concursonacional/editais",
+    comunicadosUrl: "https://www.gov.br/gestao/pt-br/concursonacional",
+    resumo: "Página oficial de acompanhamento do Concurso Público Nacional Unificado 2. Consulte os editais e comunicados no Gov.br antes de tomar qualquer decisão.",
+    requisitos: ["Consultar requisitos diretamente nos editais oficiais do CPNU 2."],
+    etapas: ["Consultar etapas, blocos e cronograma diretamente nos editais oficiais."],
+    fontes: fonteGovBrCnu,
+    fonteVerificada: true,
+    confiabilidade: "fonte_oficial_verificada",
+    origemDados: "manual_validado",
+    ultimaVerificacaoEm: oficialConsultadoEm,
+    atualizadoEm: oficialConsultadoEm,
+    historico: historicoOficial(
+      "Fonte oficial verificada",
+      "Página oficial do CPNU 2 localizada no Gov.br e cadastrada como ponto de consulta institucional.",
+      "Gov.br - Ministério da Gestão e da Inovação em Serviços Públicos",
+      "https://www.gov.br/gestao/pt-br/concursonacional"
+    ),
+    destaque: true,
+    conteudoProgramatico: materiasBase
+  },
+  {
+    id: "oficial-002",
+    slug: "receita-federal-concurso-autorizado-2026",
+    titulo: "Receita Federal - concurso autorizado 2026",
+    orgao: "Secretaria Especial da Receita Federal do Brasil",
+    orgaoSlug: "receita-federal",
+    ano: 2026,
+    tipo: "federal",
+    modalidade: "concurso_publico",
+    regiao: "Nacional",
+    abrangencia: "Nacional",
+    status: "autorizado",
+    etapaPrevisao: "autorizado",
+    cargos: ["Analista Tributário", "Auditor Fiscal"],
+    escolaridades: ["Superior"],
+    areaAtuacao: "Fiscal e tributária",
+    palavrasChave: ["receita federal", "auditor fiscal", "analista tributário", "federal", "autorizado"],
+    vagas: 146,
+    siteOficialUrl: "https://www.gov.br/receitafederal/pt-br",
+    comunicadosUrl: "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central",
+    resumo: "Concurso autorizado por portaria, conforme comunicado oficial do Ministério da Gestão. Ainda não há link de inscrição cadastrado nesta base.",
+    requisitos: ["Aguardar edital de abertura para confirmar requisitos."],
+    etapas: ["Aguardar edital de abertura para confirmar etapas."],
+    fontes: fonteAutorizacaoReceitaBacen,
+    fonteVerificada: true,
+    confiabilidade: "fonte_oficial_verificada",
+    origemDados: "manual_validado",
+    ultimaVerificacaoEm: oficialConsultadoEm,
+    atualizadoEm: oficialConsultadoEm,
+    historico: historicoOficial(
+      "Concurso autorizado",
+      "Comunicado oficial informa autorização para 146 vagas, sendo 116 para Analista Tributário e 30 para Auditor Fiscal.",
+      "Gov.br - Ministério da Gestão e da Inovação em Serviços Públicos",
+      "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central"
+    )
+  },
+  {
+    id: "oficial-003",
+    slug: "banco-central-concurso-autorizado-2026",
+    titulo: "Banco Central do Brasil - concurso autorizado 2026",
+    orgao: "Banco Central do Brasil",
+    orgaoSlug: "banco-central-do-brasil",
+    ano: 2026,
+    tipo: "federal",
+    modalidade: "concurso_publico",
+    regiao: "Nacional",
+    abrangencia: "Nacional",
+    status: "autorizado",
+    etapaPrevisao: "autorizado",
+    cargos: ["Auditor", "Técnico", "Procurador"],
+    escolaridades: ["Médio", "Superior"],
+    areaAtuacao: "Finanças e gestão pública",
+    palavrasChave: ["banco central", "bacen", "auditor", "técnico", "procurador", "federal", "autorizado"],
+    vagas: 170,
+    siteOficialUrl: "https://www.bcb.gov.br/",
+    comunicadosUrl: "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central",
+    resumo: "Concurso autorizado por portaria, conforme comunicado oficial do Ministério da Gestão. Ainda não há link de inscrição cadastrado nesta base.",
+    requisitos: ["Aguardar edital de abertura para confirmar requisitos."],
+    etapas: ["Aguardar edital de abertura para confirmar etapas."],
+    fontes: fonteAutorizacaoReceitaBacen,
+    fonteVerificada: true,
+    confiabilidade: "fonte_oficial_verificada",
+    origemDados: "manual_validado",
+    ultimaVerificacaoEm: oficialConsultadoEm,
+    atualizadoEm: oficialConsultadoEm,
+    historico: historicoOficial(
+      "Concurso autorizado",
+      "Comunicado oficial informa autorização para 170 vagas, sendo 100 para Auditor, 50 para Técnico e 20 para Procurador.",
+      "Gov.br - Ministério da Gestão e da Inovação em Serviços Públicos",
+      "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central"
+    )
+  },
   {
     ...baseDemo,
     id: "demo-001",
@@ -498,6 +687,93 @@ export const fontesConfiaveisPrioritarias = [
   "Portais institucionais de processos seletivos"
 ];
 
+export const fontesOficiaisMonitoradas: FonteOficialMonitorada[] = [
+  {
+    id: "govbr-concursos-publicos",
+    nome: "Gov.br - Concursos públicos do Executivo Federal",
+    url: "https://www.gov.br/gestao/pt-br/acesso-a-informacao/servidores/concursos-publicos",
+    tipo: "portal_governo",
+    escopo: "Concursos e provimento de pessoal no Poder Executivo Federal.",
+    cobertura: "Federal",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Usar para localizar orientações, autorizações, provimentos e notícias oficiais do MGI.",
+    termosSugeridos: ["concurso público", "autorização", "provimento", "edital"]
+  },
+  {
+    id: "mgi-autorizacoes-provimentos",
+    nome: "MGI - Autorizações e Provimentos",
+    url: "https://www.gov.br/gestao/pt-br/acesso-a-informacao/servidores/concursos-publicos/autorizacoes-e-provimentos",
+    tipo: "portal_governo",
+    escopo: "Tabelas oficiais de autorizações, provimentos e contratações temporárias.",
+    cobertura: "Federal",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Fonte adequada para classificar concursos como autorizados, sem tratar isso como edital publicado.",
+    termosSugeridos: ["autorizado", "portaria", "contratação temporária", "vagas"]
+  },
+  {
+    id: "cpnu-2-govbr",
+    nome: "Gov.br - Concurso Público Nacional Unificado 2",
+    url: "https://www.gov.br/gestao/pt-br/concursonacional",
+    tipo: "orgao",
+    escopo: "Página oficial de acompanhamento do CPNU 2.",
+    cobertura: "Nacional",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Fonte principal para informações oficiais do CPNU 2 e comunicados aos candidatos.",
+    termosSugeridos: ["cpnu", "concurso nacional unificado", "edital", "cronograma"]
+  },
+  {
+    id: "inlabs-imprensa-nacional",
+    nome: "INLABS - Imprensa Nacional",
+    url: "https://inlabs.in.gov.br/",
+    tipo: "diario_oficial",
+    escopo: "Dados abertos do Diario Oficial da Uniao em formato proprio.",
+    cobertura: "Federal",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Auxilia monitoramento, mas o XML não substitui a versão certificada publicada no portal da Imprensa Nacional.",
+    termosSugeridos: ["edital", "concurso público", "processo seletivo", "portaria"]
+  },
+  {
+    id: "pncp-api-consulta",
+    nome: "PNCP - API de consulta",
+    url: "https://pncp.gov.br/api/consulta/swagger-ui/index.html",
+    tipo: "api_publica",
+    escopo: "Editais e contratações públicas, incluindo possíveis contratações de bancas.",
+    cobertura: "Nacional",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Pode ajudar a identificar contratação de banca, mas não substitui edital de concurso.",
+    termosSugeridos: ["banca organizadora", "concurso", "serviços de seleção", "edital"]
+  },
+  {
+    id: "portal-concursos-sp",
+    nome: "Portal de Concursos do Estado de São Paulo",
+    url: "https://www.concursopublico.sp.gov.br/",
+    tipo: "portal_governo",
+    escopo: "Concursos autorizados, previstos, com inscrições abertas, em andamento e encerrados no Estado de São Paulo.",
+    cobertura: "São Paulo",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Fonte estadual para monitoramento de concursos paulistas.",
+    termosSugeridos: ["inscrições abertas", "em andamento", "autorizados", "encerrados"]
+  },
+  {
+    id: "concursos-ms",
+    nome: "Governo de Mato Grosso do Sul - Concursos e Processos Seletivos",
+    url: "https://www2.concursos.ms.gov.br/?location=editais",
+    tipo: "portal_governo",
+    escopo: "Concursos públicos e processos seletivos do Governo de Mato Grosso do Sul.",
+    cobertura: "Mato Grosso do Sul",
+    ultimaConsultaEm: oficialConsultadoEm,
+    confiabilidade: "fonte_oficial_verificada",
+    observacao: "Fonte estadual com secoes de novos, em andamento e concluidos.",
+    termosSugeridos: ["novo", "em andamento", "processo seletivo", "concurso público"]
+  }
+];
+
 export const bancas: Banca[] = [
   {
     slug: "instituto-avalia",
@@ -532,6 +808,27 @@ export const bancas: Banca[] = [
 ];
 
 export const orgaos: Orgao[] = [
+  {
+    slug: "ministerio-da-gestao-e-da-inovacao-em-servicos-publicos",
+    nome: "Ministério da Gestão e da Inovação em Serviços Públicos",
+    descricao: "Órgão federal responsável por informações oficiais relacionadas a concursos e provimento no Executivo Federal.",
+    areaAtuacao: "Gestão pública federal",
+    linksOficiais: ["https://www.gov.br/gestao/pt-br"]
+  },
+  {
+    slug: "receita-federal",
+    nome: "Secretaria Especial da Receita Federal do Brasil",
+    descricao: "Órgão federal da administração tributária e aduaneira.",
+    areaAtuacao: "Fiscal e tributaria",
+    linksOficiais: ["https://www.gov.br/receitafederal/pt-br"]
+  },
+  {
+    slug: "banco-central-do-brasil",
+    nome: "Banco Central do Brasil",
+    descricao: "Autarquia federal responsável por temas relacionados ao sistema financeiro nacional e política monetária.",
+    areaAtuacao: "Finanças e regulação",
+    linksOficiais: ["https://www.bcb.gov.br/"]
+  },
   {
     slug: "prefeitura-municipal-de-alvorada",
     nome: "Prefeitura Municipal de Alvorada",
@@ -570,6 +867,9 @@ export const orgaos: Orgao[] = [
 ];
 
 export const atualizacoes: Atualizacao[] = [
+  { id: "att-oficial-1", concursoSlug: "concurso-publico-nacional-unificado-2-2026", tipo: "Fonte oficial cadastrada", data: "2026-07-31", resumo: "Página oficial do CPNU 2 no Gov.br foi cadastrada como fonte verificada.", fonte: "Gov.br", url: "https://www.gov.br/gestao/pt-br/concursonacional", confiabilidade: "fonte_oficial_verificada" },
+  { id: "att-oficial-2", concursoSlug: "receita-federal-concurso-autorizado-2026", tipo: "Concurso autorizado", data: "2026-07-06", resumo: "Comunicado oficial do MGI informa autorização para concurso da Receita Federal.", fonte: "Gov.br", url: "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central", confiabilidade: "fonte_oficial_verificada" },
+  { id: "att-oficial-3", concursoSlug: "banco-central-concurso-autorizado-2026", tipo: "Concurso autorizado", data: "2026-07-06", resumo: "Comunicado oficial do MGI informa autorização para concurso do Banco Central.", fonte: "Gov.br", url: "https://www.gov.br/gestao/pt-br/assuntos/noticias/editoria-2013-defeso-eleitoral/publicadas-portarias-que-autorizam-concurso-na-receita-federal-e-no-banco-central", confiabilidade: "fonte_oficial_verificada" },
   { id: "att-1", concursoSlug: "prefeitura-alvorada-analista-administrativo-2026", tipo: "Publicação demonstrativa", data: "2026-07-28", resumo: "Registro demonstrativo de publicação fictícia.", fonte: "Base estática de demonstração", confiabilidade: "dado_de_demonstracao" },
   { id: "att-2", concursoSlug: "fundacao-saude-goias-assistente-2026", tipo: "Inscrições encerradas demonstrativas", data: "2026-07-10", resumo: "Registro demonstrativo de encerramento fictício das inscrições.", fonte: "Base estática de demonstração", confiabilidade: "dado_de_demonstracao" },
   { id: "att-3", concursoSlug: "instituto-nacional-de-pesquisas-analista-2026", tipo: "Fase em andamento demonstrativa", data: "2026-07-18", resumo: "Registro demonstrativo de fase em andamento.", fonte: "Base estática de demonstração", confiabilidade: "dado_de_demonstracao" }

@@ -9,6 +9,14 @@ import { TrustBadge } from "@/components/trust-badge";
 export function ConcursoCard({ concurso, returnHref }: { concurso: Concurso; returnHref?: string }) {
   const detailHref = returnHref ? `/concursos/${concurso.slug}?returnTo=${encodeURIComponent(returnHref)}` : `/concursos/${concurso.slug}`;
   const firstSource = concurso.fontes[0];
+  const officialAction =
+    concurso.inscricaoUrl
+      ? { href: concurso.inscricaoUrl, label: "Inscrição oficial" }
+      : concurso.editalUrl
+        ? { href: concurso.editalUrl, label: "Acessar edital" }
+        : concurso.siteOficialUrl
+          ? { href: concurso.siteOficialUrl, label: "Página oficial" }
+          : null;
 
   function rememberScroll() {
     if (typeof window !== "undefined") {
@@ -54,9 +62,9 @@ export function ConcursoCard({ concurso, returnHref }: { concurso: Concurso; ret
 
       <div className="mt-auto flex flex-col gap-2 pt-5 sm:flex-row">
         <Link href={detailHref} onClick={rememberScroll} className="btn-primary flex-1">Ver detalhes</Link>
-        {concurso.siteOficialUrl ? (
-          <a href={concurso.siteOficialUrl} target="_blank" rel="noreferrer" className="btn-secondary flex-1">
-            Página oficial <ExternalLink className="h-4 w-4" />
+        {officialAction ? (
+          <a href={officialAction.href} target="_blank" rel="noreferrer" className="btn-secondary flex-1">
+            {officialAction.label} <ExternalLink className="h-4 w-4" />
           </a>
         ) : (
           <span className="inline-flex flex-1 items-center justify-center rounded-lg border border-dashed border-slate-300 px-4 py-2 text-center text-sm font-semibold text-slate-500 dark:border-slate-700">
