@@ -1,9 +1,45 @@
-node_modules
-.next
+# Dependencies
+/node_modules/
+
+# Next.js
+/.next/
+/out/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.*.local
-.vercel
-coverage
-.DS_Store
+!.env.example
+
+# Vercel
+.vercel/
+
+# Test and coverage output
+/coverage/
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Local database files
+*.sqlite
+*.sqlite3
+prisma/*.db
+prisma/*.db-journal

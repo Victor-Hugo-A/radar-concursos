@@ -1,33 +1,75 @@
 # Organiza Concursos
 
-Plataforma web para organização de estudos para concursos públicos. O projeto foi criado para ser hospedado na Vercel, usando Next.js com App Router, PostgreSQL no Neon, Prisma ORM e Vercel Blob para armazenamento de PDFs.
+Plataforma publica para consulta, acompanhamento e preparacao para concursos publicos.
 
-## Funcionalidades implementadas
+O projeto deixou de ser uma area privada de organizacao de estudos com login e passou a ser uma experiencia publica, sem cadastro de usuarios, sem sessoes e sem rotas privadas. A proposta atual e permitir que qualquer pessoa consulte concursos por situacao, localidade, orgao, banca, escolaridade, area profissional e ano.
 
-- Página inicial pública moderna e responsiva.
-- Cadastro, login, logout e consulta de sessão.
-- Sessão via cookie HTTP-only com token assinado.
-- Hash de senha com bcryptjs.
-- Proteção de páginas privadas e APIs.
-- Dois perfis: `USER` e `ADMIN`.
-- CRUDs principais:
-  - Concursos;
-  - Matérias;
-  - Assuntos;
-  - Materiais/PDFs;
-  - Anotações;
-  - Sessões de estudo;
-  - Tarefas.
-- Dashboard com total de matérias, horas estudadas, questões resolvidas, percentual de acertos e atividades recentes.
-- Upload de PDFs para Vercel Blob.
-- Banco armazena somente metadados e URL dos PDFs.
-- Validação com Zod no back-end.
-- Páginas responsivas com Tailwind CSS.
-- Tema claro/escuro por usuário.
-- Área administrativa para listagem básica de usuários e indicadores gerais.
-- Pesquisa global por matérias, materiais e anotações.
-- Respostas padronizadas das APIs.
-- Coleção Postman incluída em `postman/Organiza Concursos.postman_collection.json`.
+> As informacoes exibidas possuem carater informativo. Antes de realizar qualquer inscricao, confirme os dados no edital, no site oficial do orgao responsavel e na pagina oficial da banca organizadora.
+
+## Estado Atual dos Dados
+
+Nesta etapa, os concursos exibidos pela aplicacao sao dados estaticos de demonstracao mantidos em `lib/public-data.ts`.
+
+Isso significa que:
+
+- os dados atuais nao sao obtidos automaticamente de APIs;
+- nao ha scraping de sites externos;
+- nenhum concurso demonstrativo deve ser interpretado como informacao oficial;
+- concursos sem fonte validada sao marcados visualmente como `Dado de demonstracao`, `Informacao em analise`, `Concurso previsto` ou `Aguardando confirmacao`;
+- a estrutura ja esta preparada para futura migracao para banco de dados, painel administrativo ou integracao com fontes oficiais.
+
+Somente utilize a indicacao `Fonte oficial verificada` quando a informacao tiver sido confirmada diretamente em canal institucional confiavel, como orgao publico, banca organizadora, Diario Oficial ou portal governamental.
+
+## Funcionalidades
+
+- Pagina inicial publica com chamada, pesquisa e secoes de concursos.
+- Listagem de concursos com busca detalhada e filtros combinados.
+- Filtros por situacao, localidade, escolaridade, area, banca, salario, vagas, inscricao, prova, tipo, modalidade e ano.
+- Ordenacao por relevancia, data, salario, vagas e prazo de inscricao.
+- Cards responsivos com status, fonte, ultima verificacao e ultima atualizacao.
+- Paginas proprias para concursos com URL amigavel.
+- Area de estudos por concurso e por materia.
+- Paginas publicas para bancas organizadoras e orgaos.
+- Calendario de datas importantes.
+- Noticias e atualizacoes.
+- Paginas por localidade e por ano.
+- Rotas de transparencia, LGPD, politica de privacidade, termos de uso e politica de cookies.
+- Breadcrumbs e botao de voltar em paginas internas.
+- Preservacao de pesquisa, filtros, ordenacao, paginacao e posicao aproximada de rolagem ao voltar da pagina de detalhes.
+- Sitemap e robots para SEO.
+
+## Rotas Principais
+
+```text
+/                         Pagina inicial
+/concursos                Busca e listagem de concursos
+/concursos/[slug]         Detalhes do concurso ou pagina por localidade/ano
+/concursos/[slug]/estudos Area de preparacao do concurso
+/concursos/[slug]/estudos/[materiaSlug]
+/concursos/[ano]/abertos
+/concursos/[ano]/previstos
+/concursos/[ano]/finalizados
+/inscricoes-abertas
+/concursos-previstos
+/calendario
+/regioes
+/orgaos
+/orgaos/[slug]
+/bancas
+/bancas/[slug]
+/conteudos-de-estudo
+/provas-anteriores
+/noticias
+/fontes-oficiais
+/sobre
+/contato
+/politica-de-privacidade
+/politica-de-cookies
+/termos-de-uso
+/lgpd
+```
+
+Nao existem mais rotas publicas de login, cadastro, perfil ou painel privado.
 
 ## Tecnologias
 
@@ -36,127 +78,54 @@ Plataforma web para organização de estudos para concursos públicos. O projeto
 - TypeScript
 - Tailwind CSS
 - Prisma ORM
-- PostgreSQL / Neon
-- Vercel Blob
+- PostgreSQL preparado para uso futuro
 - Zod
-- bcryptjs
-- jose
-- React Hook Form preparado como dependência para evolução dos formulários
+- Lucide React
+- date-fns
 
-## Estrutura de pastas
+Observacao: algumas dependencias antigas ainda podem existir no `package.json` por historico do projeto. Elas nao significam que a autenticacao publica esteja ativa.
+
+## Estrutura de Pastas
 
 ```text
-app/                 Páginas e Route Handlers do Next.js
-components/          Componentes reutilizáveis
-features/            Componentes por funcionalidade
-lib/                 Prisma, autenticação, respostas de API e utilidades
-repositories/        Funções de propriedade/autorização
-schemas/             Schemas Zod
-services/            Regras de negócio e estatísticas
-prisma/              Schema Prisma e seed
-postman/             Coleção para testes de API
-public/              Arquivos públicos
+app/                 Rotas publicas, metadados, sitemap e robots
+components/          Componentes reutilizaveis de layout, cards, badges e navegacao
+features/public/     Experiencias publicas mais completas, como busca e calendario
+lib/                 Dados publicos, Prisma, ambiente e utilidades
+prisma/              Schema Prisma e seed preparado para futura persistencia
+public/              Arquivos publicos
 ```
 
-## Pré-requisitos
+## Configuracao Local
 
-- Node.js 20 ou superior.
-- Conta no Neon.
-- Conta na Vercel.
-- Store do Vercel Blob criada.
-
-## Instalação local
+Instale as dependencias:
 
 ```bash
 npm install
 ```
 
-Copie o arquivo de ambiente:
-
-```bash
-cp .env.example .env
-```
-
-No Windows PowerShell:
+Crie o arquivo de ambiente:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Preencha as variáveis do `.env`.
+No Linux/macOS:
 
-## Variáveis de ambiente
+```bash
+cp .env.example .env
+```
+
+Variaveis atuais:
 
 ```env
 DATABASE_URL=
-AUTH_SECRET=
 APP_URL=http://localhost:3000
-
-BLOB_READ_WRITE_TOKEN=
-
-MAX_PDF_SIZE_MB=20
-SESSION_MAX_AGE_DAYS=7
-
-ADMIN_EMAIL=admin@example.com
-ADMIN_INITIAL_PASSWORD=Admin@123456
-DEMO_USER_EMAIL=demo@example.com
-DEMO_USER_PASSWORD=Demo@123456
 ```
 
-Importante:
+`DATABASE_URL` e usada pelo Prisma quando voce for gerar client, rodar migrations, seed ou integrar dados persistidos. A aplicacao publica atual usa dados demonstrativos estaticos em `lib/public-data.ts`.
 
-- `AUTH_SECRET` deve ter pelo menos 32 caracteres.
-- O `.env` real não deve ser enviado ao GitHub.
-- Use senhas fortes em produção.
-
-## Configuração do Neon
-
-1. Acesse o Neon e crie um novo projeto PostgreSQL.
-2. Copie a connection string do banco.
-3. Cole no `.env`:
-
-```env
-DATABASE_URL="postgresql://usuario:senha@host/db?sslmode=require"
-```
-
-4. Gere o Prisma Client:
-
-```bash
-npx prisma generate
-```
-
-5. Crie as tabelas:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-Em produção, use:
-
-```bash
-npx prisma migrate deploy
-```
-
-## Seed inicial
-
-O seed cria:
-
-- Usuário administrador;
-- Usuário demonstração;
-- Concurso de exemplo;
-- Matérias;
-- Assunto;
-- Anotação;
-- Sessão de estudo;
-- Tarefa.
-
-Execute:
-
-```bash
-npm run seed
-```
-
-## Rodar localmente
+## Rodar em Desenvolvimento
 
 ```bash
 npm run dev
@@ -168,184 +137,79 @@ Acesse:
 http://localhost:3000
 ```
 
-## Configuração do Vercel Blob
+## Prisma e Banco de Dados
 
-1. No painel da Vercel, crie um Blob Store.
-2. Copie o token de leitura e escrita.
-3. Configure a variável:
+O schema Prisma foi adaptado para o novo dominio publico da aplicacao. Ele esta preparado para representar:
 
-```env
-BLOB_READ_WRITE_TOKEN=...
-```
+- concursos;
+- orgaos;
+- bancas;
+- cargos;
+- localidades;
+- editais;
+- links oficiais;
+- fontes;
+- conteudos programaticos;
+- materias;
+- assuntos;
+- atualizacoes;
+- datas importantes;
+- provas anteriores.
 
-4. O upload usa `POST /api/materiais/upload` com `multipart/form-data`.
-5. O banco salva `fileName`, `fileUrl`, `fileSize`, `mimeType` e `storageKey`.
+A aplicacao ainda nao depende do banco para exibir os dados demonstrativos atuais. Antes de usar o banco em ambiente real, valide as fontes oficiais e revise migrations/seed conforme a estrategia de publicacao.
 
-## Testando as APIs no Postman ou Insomnia
+## Fontes Oficiais
 
-Importe o arquivo:
+A rota `/fontes-oficiais` documenta a arquitetura prevista para confiabilidade dos dados.
 
-```text
-postman/Organiza Concursos.postman_collection.json
-```
+Fontes priorizadas:
 
-Configure a variável:
+- sites oficiais de orgaos publicos;
+- sites oficiais de bancas organizadoras;
+- Diario Oficial da Uniao;
+- diarios oficiais estaduais, distritais e municipais;
+- portal Gov.br;
+- paginas institucionais de processos seletivos.
 
-```text
-baseUrl=http://localhost:3000
-```
+Nao implemente coleta automatizada por scraping sem verificar regras, permissoes e limites do site de origem.
 
-Fluxo recomendado:
+## Qualidade e Verificacao
 
-1. `POST /api/auth/register`
-2. `POST /api/auth/login`
-3. `GET /api/auth/session`
-4. `POST /api/concursos`
-5. `POST /api/materias`
-6. `POST /api/assuntos`
-7. `POST /api/anotacoes`
-8. `POST /api/estudos`
-9. `POST /api/tarefas`
-10. `POST /api/materiais/upload`
-
-Como a autenticação usa cookie HTTP-only, mantenha o cookie jar habilitado no Postman.
-
-## Padrão de respostas da API
-
-Sucesso:
-
-```json
-{
-  "success": true,
-  "message": "Registro criado com sucesso.",
-  "data": {}
-}
-```
-
-Erro:
-
-```json
-{
-  "success": false,
-  "message": "Não foi possível concluir a operação.",
-  "errors": []
-}
-```
-
-## Códigos HTTP usados
-
-- `200`: consulta ou atualização bem-sucedida.
-- `201`: criação bem-sucedida.
-- `204`: exclusão sem conteúdo.
-- `400`: dados inválidos.
-- `401`: usuário não autenticado.
-- `403`: acesso não autorizado.
-- `404`: recurso não encontrado.
-- `409`: conflito, como e-mail duplicado.
-- `413`: arquivo acima do limite.
-- `415`: tipo de arquivo inválido.
-- `500`: erro interno.
-
-## Publicação na Vercel
-
-1. Suba o projeto para o GitHub.
-2. Importe o repositório na Vercel.
-3. Configure as variáveis de ambiente no painel da Vercel.
-4. Configure `DATABASE_URL` do Neon.
-5. Configure `BLOB_READ_WRITE_TOKEN`.
-6. Rode localmente ou em pipeline:
-
-```bash
-npx prisma migrate deploy
-```
-
-7. Faça deploy.
-
-O script de build já executa:
-
-```bash
-prisma generate && next build
-```
-
-## Segurança aplicada
-
-- Senhas com hash bcrypt.
-- Cookie HTTP-only.
-- `sameSite=lax`.
-- Cookie seguro em produção.
-- APIs privadas exigem autenticação.
-- Recursos filtrados por `userId`.
-- Admin não recebe hash de senha nas consultas.
-- Login retorna mensagem genérica para credenciais inválidas.
-- Upload aceita apenas PDF.
-- Limite de tamanho de PDF configurável.
-- Erros técnicos são registrados no servidor sem expor stack trace ao usuário.
-
-## Solução de erros comuns
-
-### `AUTH_SECRET deve possuir pelo menos 32 caracteres`
-
-Crie uma chave longa:
-
-```bash
-openssl rand -base64 32
-```
-
-Ou use uma string segura com mais de 32 caracteres.
-
-### `Armazenamento de arquivos não configurado`
-
-Configure `BLOB_READ_WRITE_TOKEN` no `.env` local e na Vercel.
-
-### Erro de conexão com Neon
-
-Verifique:
-
-- `DATABASE_URL` completa;
-- `sslmode=require`;
-- se o projeto Neon está ativo;
-- se as migrations foram executadas.
-
-### Erro ao enviar PDF
-
-Verifique:
-
-- se o arquivo termina com `.pdf`;
-- se o tipo é `application/pdf`;
-- se o tamanho está abaixo de `MAX_PDF_SIZE_MB`;
-- se o Blob Token está correto.
-
-## Melhorias futuras
-
-- Recuperação de senha por e-mail.
-- Verificação de e-mail.
-- Flashcards.
-- Simulados.
-- Banco de questões.
-- Calendário mensal de estudos.
-- Notificações.
-- PWA.
-- Compartilhamento controlado de materiais.
-- Planos gratuito e premium.
-- Editor Markdown avançado com preview.
-- Importação de edital em PDF.
-
-## Antes de zipar ou publicar
-
-Execute:
+Comando util para verificar tipos sem executar build:
 
 ```bash
 npm run typecheck
-npm run lint
-npm run build
 ```
 
-Remova antes de enviar:
+Comandos de producao, build e deploy devem ser executados apenas quando essa etapa for realmente iniciada.
 
-- `node_modules/`
-- `.next/`
-- `.env`
-- arquivos temporários
-- logs
+## Git e Arquivos Ignorados
 
-Mantenha somente `.env.example`.
+O `.gitignore` deve manter fora do repositorio:
+
+- `node_modules/`;
+- `.next/`;
+- `.env` e arquivos locais de ambiente;
+- `.vercel/`;
+- logs;
+- coverage;
+- caches como `*.tsbuildinfo`;
+- arquivos locais de editor e sistema operacional.
+
+O arquivo `.env.example` deve continuar versionado, pois serve como modelo seguro das variaveis esperadas.
+
+Se algum arquivo de cache ja tiver sido enviado ao Git antes de entrar no `.gitignore`, remova apenas do controle de versao, mantendo o arquivo local:
+
+```bash
+git rm --cached tsconfig.tsbuildinfo
+```
+
+## Proximas Evolucoes
+
+- Criar painel administrativo separado da navegacao publica.
+- Implementar fluxo de validacao editorial antes de publicar concursos.
+- Integrar importacao manual ou API de fontes oficiais.
+- Criar rotina de revisao periodica das informacoes.
+- Adicionar historico completo por concurso vindo de fontes institucionais.
+- Expandir banco de provas anteriores e conteudos de estudo.
+- Substituir dados demonstrativos por dados oficiais verificados.
